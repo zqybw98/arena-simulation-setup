@@ -1,69 +1,74 @@
-# Observation sources for the navigation stack
+# Model parameters for RB-THERON 
+# (Derived from RB-THERON ROS2 description and specifications)
+# RB-THERON is a differential-drive mobile robot with front and rear 2D laser scanners:contentReference[oaicite:0]{index=0}.
+
+observation_sources_string: front_laser rear_laser
 observation_sources:
-  - lidar
-
+  - front_laser
+  - rear_laser
 observation_sources_dict:
-  lidar:
-    # IMPORTANT: Ensure this ROS topic matches the 'ros_topic' you defined in mappings.yaml for the LiDAR.
-    # Common names are "scan" or "lidar".
-    topic: ${namespace}/scan
+  front_laser:  # Front 2D LIDAR (Hokuyo UST-20LX) on front-right side:contentReference[oaicite:1]{index=1}:contentReference[oaicite:2]{index=2}
+    topic: ${namespace}/front_laser
     max_obstacle_height: 2.0
-    clearing: True
-    marking: True
+    clearing: true
+    marking: true
     data_type: "LaserScan"
+  rear_laser:   # Rear 2D LIDAR (Hokuyo UST-20LX) on rear-left side:contentReference[oaicite:3]{index=3}:contentReference[oaicite:4]{index=4}
+    topic: ${namespace}/rear_laser
+    max_obstacle_height: 2.0
+    clearing: true
+    marking: true
+    data_type: LaserScan
 
-# Robot's physical footprint for the costmap.
-# IMPORTANT: This is a critical parameter. You must replace these placeholder values
-# with the actual vertices of your rbtheron's chassis, in meters.
-# The format is a list of [x, y] points relative to the base_frame.
-footprint: "[ [-0.25, -0.25], [0.25, -0.25], [0.25, 0.25], [-0.25, 0.25] ]"
+polygons:
+  - StopPolygon
+polygons_dict:
+  StopPolygon:
+    type: "polygon"
+    # Define a safety stop zone (approximately 0.5 x 0.5 m rectangle within base footprint):contentReference[oaicite:5]{index=5}
+    points: "[ [0.25, 0.25], [0.25, -0.25], [-0.25, -0.25], [-0.25, 0.25] ]"
+    action_type: "stop"
+    min_points: 4
 
-# Approximate radius of the robot for simpler collision checks.
-# IMPORTANT: Update this value to be the distance from the robot's center to its furthest point.
-robot_radius: 0.35
+wheel_separation: 0.5032     # ~0.5032 m track width between drive wheels (0.2516 m each side):contentReference[oaicite:6]{index=6}:contentReference[oaicite:7]{index=7}
+wheels_per_side: 1           # One drive wheel per side (differential drive):contentReference[oaicite:8]{index=8}
+wheel_radius: 0.0762         # Wheel radius ~0.0762 m (from URDF):contentReference[oaicite:9]{index=9}
 
-# TF Frame IDs
-# IMPORTANT: Ensure these frame names match your URDF and control.yaml files.
-robot_base_frame: 'robot_base_footprint'
+wheel_separation_multiplier: 1.0   # No extra scaling (diff drive kinematics)
+left_wheel_radius_multiplier: 1.0
+right_wheel_radius_multiplier: 1.0
+
+publish_rate: 50.0
+odom_frame_id: odom
+# base_frame_id: base_link    # base_link is 3D center of robot (fixed to footprint)
+pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 0.03]
+twist_covariance_diagonal: [1000000.0, 1000000.0, 0.03, 1000000.0, 1000000.0, 0.03]
+
 robot_odom_frame: 'odom'
 
-# Robot action commands
 actions:
   continuous:
-    # These ranges should match the velocity limits in your control.yaml
-    angular_range:
-    - -1.0
-    - 1.0
-    linear_range:
-    - -1.0
-    - 1.0
+    angular_range: [-3.0, 3.0]     # Estimated max angular speed ~3 rad/s (in-place rotation)
+    linear_range: [-1.3, 1.3]      # Max linear speed ~1.25 m/s:contentReference[oaicite:10]{index=10}
   discrete:
-  - { angular: 0.0, linear: 0.3, name: move_forward }
-  - { angular: 0.0, linear: -0.15, name: move_backward }
-  - { angular: 0.35, linear: 0.15, name: turn_left }
-  - { angular: -0.35, linear: 0.15, name: turn_right }
-  - { angular: 0.75, linear: 0.0, name: turn_strong_left }
-  - { angular: -0.75, linear: 0.0, name: turn_strong_right }
-  - { angular: 0.0, linear: 0.0, name: stop }
+    - {name: move_forward, linear: 0.3, angular: 0.0}
+    - {name: move_backward, linear: -0.3, angular: 0.0}
+    - {name: turn_left, linear: 0.0, angular: 2.0}
+    - {name: turn_right, linear: 0.0, angular: -2.0}
+    - {name: stop, linear: 0.0, angular: 0.0}
 
-# The robot is non-holonomic (it cannot move sideways).
-is_holonomic: false
+is_holonomic: false   # RB-THERON is non-holonomic (standard diff-drive):contentReference[oaicite:11]{index=11}
 
-# LiDAR sensor specifications
-# IMPORTANT: These values MUST match the specifications of the LiDAR on your rbtheron.
-# The most reliable source for this data is the sensor's .xacro or .urdf file.
 laser:
   angle:
-    increment: 0.00654497222
-    max: 2.35619
-    min: -2.35619
-  num_beams: 720
-  range: 30.0
-  update_rate: 10
+    increment: 0.00654497222   # ~0.375° increment
+    max: 2.35619               # 135° (front left):contentReference[oaicite:12]{index=12}
+    min: -2.35619              # -135° (rear right):contentReference[oaicite:13]{index=13}
+  num_beams: 720               # 720 beams (~270° field of view):contentReference[oaicite:14]{index=14}
+  range: 30.0                  # Max range ~20 m per sensor:contentReference[oaicite:15]{index=15} (30 m used in config)
+  update_rate: 10              # Scans published at ~10 Hz (sensor supports up to 40 Hz)
 
-# General robot information
+robot_base_frame: robot_base_footprint
 robot_model: rbtheron
-
-# The TF frame of the laser scanner sensor.
-# IMPORTANT: Find the correct frame name in your sensor's URDF file.
-robot_sensor_frame: laser_link
+robot_radius: 0.35            # ~0.35 m (approx half of RB-THERON length):contentReference[oaicite:16]{index=16}
+robot_sensor_frame: lidar

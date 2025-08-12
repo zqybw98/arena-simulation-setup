@@ -24,7 +24,7 @@
 	<xacro:arg name="namespace" default="robot"/>
 	<xacro:arg name="prefix" default="robot_"/>
 	<xacro:arg name="gazebo_classic" default="false"/>
-	<xacro:arg name="gazebo_ignition" default="false"/>
+	<xacro:arg name="gazebo_ignition" default="true"/>
 
     <xacro:rbvogui prefix="$(arg prefix)" hq="${hq}"/>
 
@@ -34,7 +34,7 @@
     <xacro:sensor_vectornav
         frame_prefix="$(arg prefix)vectornav_"
         parent="$(arg prefix)chassis_link"
-        node_namespace="$(arg namespace)"
+        node_namespace="/model/$(arg name)"
         gazebo_classic="$(arg gazebo_classic)"
         gazebo_ignition="$(arg gazebo_ignition)">
         <origin xyz="0.3 -0.3 0.0725" rpy="0 0 0"/>
@@ -44,7 +44,7 @@
     <xacro:sensor_intel_realsense_d435
         frame_prefix="$(arg prefix)front_rgbd_camera_"
         parent="$(arg prefix)base_link"
-        node_namespace="$(arg namespace)"
+        node_namespace="/model/$(arg name)"
         node_name="front_camera"
         gazebo_classic="$(arg gazebo_classic)"
         gazebo_ignition="$(arg gazebo_ignition)">
@@ -55,7 +55,7 @@
     <xacro:sensor_intel_realsense_d435
         frame_prefix="$(arg prefix)rear_rgbd_camera_"
         parent="$(arg prefix)base_link"
-        node_namespace="$(arg namespace)"
+        node_namespace="/model/$(arg name)"
         node_name="rear_camera"
         gazebo_classic="$(arg gazebo_classic)"
         gazebo_ignition="$(arg gazebo_ignition)">
@@ -66,7 +66,7 @@
     <xacro:sensor_sick_s300
         frame_prefix="$(arg prefix)front_laser_"
         parent="$(arg prefix)chassis_link"
-        node_namespace="$(arg namespace)"
+        node_namespace="/model/$(arg name)"
         node_name="front_laser"
         gazebo_classic="$(arg gazebo_classic)"
         gazebo_ignition="$(arg gazebo_ignition)">
@@ -76,7 +76,7 @@
     <xacro:sensor_sick_s300
         frame_prefix="$(arg prefix)rear_laser_"
         parent="$(arg prefix)chassis_link"
-        node_namespace="$(arg namespace)"
+        node_namespace="/model/$(arg name)"
         node_name="rear_laser"
         gazebo_classic="$(arg gazebo_classic)"
         gazebo_ignition="$(arg gazebo_ignition)">
@@ -85,11 +85,11 @@
 
 	<!-- Controllers -->
 	<xacro:if value="$(arg gazebo_classic)">
-		<xacro:rbvogui_gz_classic_control namespace="$(arg namespace)" prefix="$(arg prefix)"/>
+		<xacro:rbvogui_gz_classic_control namespace="/model/$(arg name)" prefix="$(arg prefix)"/>
         <xacro:ros_planar_move_gazebo_classic/>
 	</xacro:if>
 	<xacro:if value="$(arg gazebo_ignition)">
-		<xacro:rbvogui_gz_ignition_control namespace="$(arg namespace)" prefix="$(arg prefix)"/>
+		<xacro:rbvogui_gz_ignition_control namespace="/model/$(arg name)" prefix="$(arg prefix)"/>
 	</xacro:if>
     <xacro:unless value="$(arg gazebo_classic)">
         <xacro:unless value="$(arg gazebo_ignition)">

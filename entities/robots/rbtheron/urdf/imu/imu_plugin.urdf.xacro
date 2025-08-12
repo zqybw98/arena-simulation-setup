@@ -10,86 +10,86 @@
             rate
             ">
 
-    <xacro:if value="${gazebo_classic}">
+    <!-- <xacro:if value="${gazebo_classic}">
       <gazebo reference="${frame_link}">
         <gravity>true</gravity>
         <sensor name="${node_name}_sensor" type="imu">
           <always_on>true</always_on>
           <update_rate>${rate}</update_rate>
-          <visualize>true</visualize>
+          <visualize>true</visualize> -->
 
-          <imu>
+          <!-- <imu>
             <orientation>
               <x>
                 <noise type="gaussian">
-                  <mean>0.0</mean>
+                  <mean>0.0</mean> -->
                   <!-- <stddev>2e-3</stddev> -->
-                  <stddev>0.01</stddev>
+                  <!-- <stddev>0.01</stddev>
                 </noise>
               </x>
               <y>
                 <noise type="gaussian">
-                  <mean>0.0</mean>
+                  <mean>0.0</mean> -->
                   <!-- <stddev>2e-3</stddev> -->
-                  <stddev>0.01</stddev>
+                  <!-- <stddev>0.01</stddev>
                 </noise>
               </y>
               <z>
                 <noise type="gaussian">
-                  <mean>0.0</mean>
+                  <mean>0.0</mean> -->
                   <!-- <stddev>2e-3</stddev> -->
-                  <stddev>0.01</stddev>
+                  <!-- <stddev>0.01</stddev>
                 </noise>
               </z>
             </orientation>
             <angular_velocity>
               <x>
                 <noise type="gaussian">
-                  <mean>0.0</mean>
+                  <mean>0.0</mean> -->
                   <!-- <stddev>2e-4</stddev> -->
-                  <stddev>0.01</stddev>
+                  <!-- <stddev>0.01</stddev>
                 </noise>
               </x>
               <y>
                 <noise type="gaussian">
-                  <mean>0.0</mean>
+                  <mean>0.0</mean> -->
                   <!-- <stddev>2e-4</stddev> -->
-                  <stddev>0.01</stddev>
+                  <!-- <stddev>0.01</stddev>
                 </noise>
               </y>
               <z>
                 <noise type="gaussian">
-                  <mean>0.0</mean>
+                  <mean>0.0</mean> -->
                   <!-- <stddev>2e-3</stddev> -->
-                  <stddev>0.01</stddev>
+                  <!-- <stddev>0.01</stddev>
                 </noise>
               </z>
             </angular_velocity>
             <linear_acceleration>
               <x>
                 <noise type="gaussian">
-                  <mean>0.0</mean>
+                  <mean>0.0</mean> -->
                   <!-- <stddev>1.7e-2</stddev> -->
-                  <stddev>0.01</stddev>
+                  <!-- <stddev>0.01</stddev>
                 </noise>
               </x>
               <y>
                 <noise type="gaussian">
-                  <mean>0.0</mean>
+                  <mean>0.0</mean> -->
                   <!-- <stddev>1.7e-2</stddev> -->
-                  <stddev>0.01</stddev>
+                  <!-- <stddev>0.01</stddev>
                 </noise>
               </y>
               <z>
                 <noise type="gaussian">
-                  <mean>0.0</mean>
+                  <mean>0.0</mean> -->
                   <!-- <stddev>1.7e-2</stddev> -->
-                  <stddev>0.01</stddev>
+                  <!-- <stddev>0.01</stddev>
                 </noise>
               </z>
             </linear_acceleration>
-          </imu>
-          <plugin name="${node_name}" filename="libgazebo_ros_imu_sensor.so">
+          </imu> -->
+          <!-- <plugin name="${node_name}" filename="libgazebo_ros_imu_sensor.so">
             <ros>
               <namespace>${node_namespace}</namespace>
               <remapping>~/out:=${node_name}/data</remapping>
@@ -99,9 +99,10 @@
           </plugin>
         </sensor>
       </gazebo>
-    </xacro:if>
+    </xacro:if> -->
 
-    <xacro:if value="${gazebo_ignition}">
+
+    <!-- <xacro:if value="${gazebo_ignition}"> -->
       <gazebo reference="${frame_link}">
         <gravity>true</gravity>
         <sensor name="${node_name}_sensor" type="imu">
@@ -177,11 +178,11 @@
           </imu>
 
           <topic>${node_namespace}/${node_name}/data</topic>
-          <gz_frame_id>${frame_link}</gz_frame_id>
+          <!-- <gz_frame_id>${frame_link}</gz_frame_id> -->
 
         </sensor>
       </gazebo>
-    </xacro:if>
+    <!-- </xacro:if> -->
 
   </xacro:macro>
 

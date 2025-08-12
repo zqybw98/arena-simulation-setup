@@ -1,99 +1,75 @@
-# =================================================================================
-# This is the UPDATED model_params.yaml for the Robotnik RB-VOGUI robot.
-#
-# It has been modified based on the detailed parameters found in the
-# official "rbvogui_controller_params.yaml" file.
-# =================================================================================
-
-# --- Observation Sources (for Costmap) ---
-observation_sources_string: lidar
+# Model parameters for RB-VOGUI 
+# (Derived from RB-VOGUI URDF and ROS2 configuration)
+# RB-VOGUI is a 4-wheel drive mobile robot with front and rear Ackermann steering 
+# and two 2D LIDAR scanners (front and rear):contentReference[oaicite:0]{index=0}.
+ 
+observation_sources_string: front_laser rear_laser
 observation_sources:
-  - lidar
+  - front_laser
+  - rear_laser
 observation_sources_dict:
-  lidar:
-    # This topic should match the output of your LiDAR driver in the simulation
-    topic: ${namespace}/scan
+  front_laser:  # Front 2D LIDAR (SICK S300 scanner) on front-left corner of chassis:contentReference[oaicite:1]{index=1}
+    topic: ${namespace}/front_laser
     max_obstacle_height: 2.0
-    clearing: True
-    marking: True
+    clearing: true
+    marking: true
     data_type: "LaserScan"
+  rear_laser:   # Rear 2D LIDAR (SICK S300 scanner) on rear-right corner of chassis:contentReference[oaicite:2]{index=2}
+    topic: ${namespace}/rear_laser
+    max_obstacle_height: 2.0
+    clearing: true
+    marking: true
+    data_type: LaserScan
 
-# --- Safety Polygons ---
-# A smaller polygon inside the robot's main footprint for safety stops.
 polygons:
   - StopPolygon
 polygons_dict:
   StopPolygon:
     type: "polygon"
-    # MODIFIED: Adjusted to be smaller than the new, accurate footprint.
-    points: "[ [0.3, 0.2], [0.3, -0.2], [-0.3, -0.2], [-0.3, 0.2] ]"
+    # Define a safety stop zone (approximately 1.0 x 0.7 m rectangle within base footprint):contentReference[oaicite:3]{index=3}
+    points: "[ [0.5, 0.35], [0.5, -0.35], [-0.5, -0.35], [-0.5, 0.35] ]"
     action_type: "stop"
-    min_points: 3
-    visualize: True
-    polygon_pub_topic: "polygon_stop"
-    enabled: True
+    min_points: 4
 
-# --- Planner Plugin (for Nav2) ---
-# This typically does not need to be changed for a different robot model.
-planner_plugins:
-  - GridBased
-planner_plugins_dict:
-  GridBased:
-    plugin: "nav2_navfn_planner/NavfnPlanner"
-    tolerance: 0.5
-    use_astar: false
-    allow_unknown: true
+wheel_separation: 0.4745     # ~0.4745 m track width between wheels (≈0.2373 m each side):contentReference[oaicite:4]{index=4}
+wheels_per_side: 2           # Two drive wheels per side (4WD Ackermann steering):contentReference[oaicite:5]{index=5}:contentReference[oaicite:6]{index=6}
+wheel_radius: 0.1165         # Wheel radius ≈0.1165 m (0.233 m diameter per URDF):contentReference[oaicite:7]{index=7}
 
-# --- Robot Footprint ---
-# MODIFIED: Updated with accurate dimensions from the new controller file.
-# wheel_base: 0.76, track_width: 0.4745
-footprint: "[ [0.38, 0.24], [0.38, -0.24], [-0.38, -0.24], [-0.38, 0.24] ]"
+wheel_separation_multiplier: 1.0   # No scaling (Ackermann geometry uses true track width)
+left_wheel_radius_multiplier: 1.0
+right_wheel_radius_multiplier: 1.0
 
-# --- Coordinate Frames ---
-# MODIFIED: Updated to match the frames used by the robotnik_base_controller.
-robot_base_frame: 'robot_base_footprint'
+publish_rate: 50.0
+odom_frame_id: odom
+# base_frame_id: robot_base_link    # robot_base_link is the 3D center of robot (fixed to footprint)
+pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 0.03]
+twist_covariance_diagonal: [1000000.0, 1000000.0, 0.03, 1000000.0, 1000000.0, 0.03]
+
 robot_odom_frame: 'odom'
 
-# --- Action Space (Velocity Commands) ---
-# MODIFIED: Updated to reflect the holonomic movement and the limits
-# specified in the new controller file (linear: 0.3 m/s, angular: 0.3 rad/s).
 actions:
   continuous:
-    angular_range:
-    - -0.3
-    - 0.3
-    linear_range: # Note: This is now a single range for holonomic movement
-    - -0.3
-    - 0.3
+    angular_range: [-0.3, 0.3]     # Max angular speed ~0.3 rad/s (limited by steering kinematics):contentReference[oaicite:8]{index=8}
+    linear_range: [-0.3, 0.3]      # Max linear speed ~0.3 m/s (from base controller config):contentReference[oaicite:9]{index=9}
   discrete:
-  - { name: move_forward,      linear: 0.3,  angular: 0.0 }
-  - { name: move_backward,     linear: -0.3, angular: 0.0 }
-  - { name: turn_left,         linear: 0.0,  angular: 0.3 }
-  - { name: turn_right,        linear: 0.0,  angular: -0.3 }
-  # Holonomic-specific movements
-  - { name: strafe_left,       linear_x: 0.0, linear_y: 0.3,  angular: 0.0 }
-  - { name: strafe_right,      linear_x: 0.0, linear_y: -0.3, angular: 0.0 }
-  - { name: stop,              linear: 0.0,  angular: 0.0 }
+    - {name: move_forward,  linear: 0.3,  angular: 0.0}
+    - {name: move_backward, linear: -0.3, angular: 0.0}
+    - {name: turn_left,     linear: 0.0,  angular: 0.2}
+    - {name: turn_right,    linear: 0.0,  angular: -0.2}
+    - {name: stop,          linear: 0.0,  angular: 0.0}
 
-# --- Kinematics ---
-# MODIFIED: The robot is holonomic due to four-wheel steering.
-is_holonomic: true
+is_holonomic: false   # RB-VOGUI uses dual Ackermann (front & rear wheel steering) kinematics:contentReference[oaicite:10]{index=10}
 
-# --- Laser Sensor Specification ---
-# These parameters depend on the physical LiDAR model, not the controller.
-# The Hokuyo UST-10LX values are likely correct.
 laser:
   angle:
-    min: -2.35619449019 # -135 degrees
-    max: 2.35619449019  # +135 degrees
-    increment: 0.00436332312
-  num_beams: 1081
-  range: 10.0
-  update_rate: 40
+    increment: 0.01687            # ~0.97° angular resolution per beam
+    max: 2.26893                  # ~130° (forward-left):contentReference[oaicite:11]{index=11}
+    min: -2.26893                 # ~-130° (back-right):contentReference[oaicite:12]{index=12}
+  num_beams: 270                  # 270 beams (~260° total field of view per scanner):contentReference[oaicite:13]{index=13}
+  range: 10.0                     # Max range ~10 m per scanner (SICK S300 spec):contentReference[oaicite:14]{index=14}
+  update_rate: 25                 # Laser scans published at ~25 Hz:contentReference[oaicite:15]{index=15}
 
-# --- Robot Model Identification ---
+robot_base_frame: robot_base_footprint
 robot_model: rbvogui
-# MODIFIED: Updated radius based on the new footprint calculation.
-robot_radius: 0.45 # sqrt(0.38^2 + 0.24^2)
-# !!! ACTION REQUIRED !!! VERIFY THIS FRAME NAME IN YOUR URDF.
-robot_sensor_frame: 'base_laser_link'
+robot_radius: 0.53               # ~0.53 m (approx half of RB-VOGUI length):contentReference[oaicite:16]{index=16}
+robot_sensor_frame: lidar
