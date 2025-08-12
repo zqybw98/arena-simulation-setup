@@ -26,7 +26,7 @@
 	<xacro:arg name="namespace" default="robot"/>
 	<xacro:arg name="prefix" default="robot_"/>
 	<xacro:arg name="gazebo_classic" default="false"/>
-	<xacro:arg name="gazebo_ignition" default="false"/>
+	<xacro:arg name="gazebo_ignition" default="true"/>
 
 	<xacro:property name="imu_offset_x" value="0.0385"/>
 	<xacro:property name="imu_offset_y" value="0.132"/>
@@ -58,7 +58,7 @@
     <xacro:sensor_vectornav
         frame_prefix="$(arg prefix)vectornav_"
         parent="$(arg prefix)base_link"
-        node_namespace="$(arg namespace)"
+        node_namespace="/model/$(arg name)"
         gazebo_classic="$(arg gazebo_classic)"
         gazebo_ignition="$(arg gazebo_ignition)">
         <origin xyz="${imu_offset_x} ${imu_offset_y} ${imu_offset_z}" rpy="0 0 0"/>
@@ -68,7 +68,7 @@
 	<xacro:sensor_robosense_helios_16p
 		frame_prefix="$(arg prefix)top_3d_laser_"
 		parent="$(arg prefix)base_link"
-        node_namespace="$(arg namespace)"
+        node_namespace="/model/$(arg name)"
         node_name="top_lidar"
         gazebo_classic="$(arg gazebo_classic)"
         gazebo_ignition="$(arg gazebo_ignition)">
@@ -83,7 +83,7 @@
     <xacro:sensor_intel_realsense_d435
         frame_prefix="$(arg prefix)front_rgbd_camera_"
         parent="$(arg prefix)base_link"
-        node_namespace="$(arg namespace)"
+        node_namespace="/model/$(arg name)"
         node_name="front_camera"
         gazebo_classic="$(arg gazebo_classic)"
         gazebo_ignition="$(arg gazebo_ignition)">
@@ -95,7 +95,7 @@
 		frame_prefix="$(arg prefix)gps_"
 		parent="$(arg prefix)base_link"
 		update_rate="5"
-        node_namespace="$(arg namespace)"
+        node_namespace="/model/$(arg name)"
         gazebo_classic="$(arg gazebo_classic)"
         gazebo_ignition="$(arg gazebo_ignition)">
 		<origin

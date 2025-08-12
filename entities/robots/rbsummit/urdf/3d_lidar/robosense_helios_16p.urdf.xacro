@@ -62,7 +62,7 @@
       gazebo_ignition="${gazebo_ignition}"
       min_range="0.1"
       max_range="50.0"
-      max_angle="85"
+      max_angle="15"
       frame_link="${frame_prefix}link"
       rate="10"
       horizontal_samples="1200"

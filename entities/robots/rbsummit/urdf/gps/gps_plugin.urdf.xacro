@@ -11,7 +11,7 @@
             rate
             ">
 
-    <xacro:if value="${gazebo_classic}">
+    <!-- <xacro:if value="${gazebo_classic}">
         <gazebo reference="${frame_link}">
             <sensor type="gps" name="${node_name}">
             <always_on>true</always_on>
@@ -55,9 +55,9 @@
             </plugin>
             </sensor>
         </gazebo>
-    </xacro:if>
+    </xacro:if> -->
 
-    <xacro:if value="${gazebo_ignition}">
+    <!-- <xacro:if value="${gazebo_ignition}"> -->
         <gazebo reference="${frame_link}">
             <sensor name="${node_name}" type="navsat">
                 <navsat>
@@ -93,11 +93,11 @@
                 <always_on>1</always_on>
                 <update_rate>${rate}</update_rate>
                 <topic>${node_namespace}/${node_name}/data</topic>
-                <gz_frame_id>${frame_link}</gz_frame_id>
+                <!-- <gz_frame_id>${frame_link}</gz_frame_id> -->
                 <plugin filename="ignition-gazebo-navsat-system" name="ignition::gazebo::systems::NavSat"/>
             </sensor>
         </gazebo>
-    </xacro:if>
+    <!-- </xacro:if> -->
 
   </xacro:macro>
 

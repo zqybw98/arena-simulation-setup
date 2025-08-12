@@ -5,19 +5,17 @@ controller_manager:
     use_sim_time: true
 
     # Controller definitions
-    diff_drive_controller:
+    # Rename the controller to rbsummit_velocity_controller for consistency
+    rbsummit_velocity_controller:
       type: diff_drive_controller/DiffDriveController
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-# diff_drive_controller configuration
-diff_drive_controller:
+# rbsummit_velocity_controller configuration
+rbsummit_velocity_controller:
   ros__parameters:
-    publish_rate: 50.0
-    base_frame_id: robot_base_footprint
-
-    # Joint names from your rbsummit_controller_params.yaml
+    # --- RBSummit Specific Parameters ---
     left_wheel_names:
       - robot_front_left_wheel_joint
       - robot_back_left_wheel_joint
@@ -26,9 +24,44 @@ diff_drive_controller:
       - robot_front_right_wheel_joint
       - robot_back_right_wheel_joint
 
-    # Kinematic parameters from your rbsummit_controller_params.yaml
-    wheel_separation: 0.47  # This is the track_width
+    wheel_separation: 0.47
     wheel_radius: 0.1125
+    base_frame_id: robot_base_footprint
     
-    # Other settings
+    # --- Parameters completed by referencing other robot configurations (tuning recommended based on rbsummit's actual performance) ---
+    publish_rate: 50.0
+    odom_frame_id: odom
+
+    # Covariance, tunable based on actual encoder data
+    pose_covariance_diagonal : [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 0.03]
+    twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 0.03]
+
+    # Set to true if odometry is not provided from wheel encoders
+    open_loop: false
+    # It's generally recommended to enable this to publish the odom -> base_link TF
+    enable_odom_tf: true
+
+    # Command velocity timeout (seconds)
+    cmd_vel_timeout: 0.25
     use_stamped_vel: false
+    
+    # Switches for publishing topics
+    publish_cmd: true
+    publish_wheel_data: true
+
+    # Velocity and acceleration limits (tuning recommended based on the rbsummit manual)
+    linear.x.has_velocity_limits: true
+    linear.x.has_acceleration_limits: true
+    linear.x.has_jerk_limits: false
+    linear.x.max_velocity: 1.5
+    linear.x.min_velocity: -1.5
+    linear.x.max_acceleration: 10.0
+    linear.x.min_acceleration: -10.0
+
+    angular.z.has_velocity_limits: true
+    angular.z.has_acceleration_limits: true
+    angular.z.has_jerk_limits: false
+    angular.z.max_velocity: 4.0
+    angular.z.min_velocity: -4.0
+    angular.z.max_acceleration: 20.0
+    angular.z.min_acceleration: -20.0
