@@ -1,73 +1,73 @@
-observation_sources_string: lidar
+# ============================
+# Ridgeback (Clearpath Robotics) — model_params.yaml
+# Matches style of Boxer/Jackal configs
+# ============================
+
+observation_sources_string: front_laser rear_laser
 observation_sources:
-  - lidar
+  - front_laser
+  - rear_laser
 observation_sources_dict:
-    lidar:
-      topic: ${namespace}/lidar
-      max_obstacle_height: 2.0
-      clearing: True
-      marking: True
-      data_type: "LaserScan"
+  front_laser:
+    topic: ${namespace}/front_laser     # NOTE: if URDF publishes "front/scan", remap to this
+    max_obstacle_height: 2.0
+    clearing: true
+    marking: true
+    data_type: LaserScan
+  rear_laser:
+    topic: ${namespace}/rear_laser      # NOTE: if URDF publishes "rear/scan", remap to this
+    max_obstacle_height: 2.0
+    clearing: true
+    marking: true
+    data_type: LaserScan
 
 polygons:
   - StopPolygon
 polygons_dict:
   StopPolygon:
-    type: "polygon"
-    points: "[ [0.48, 0.40], [0.48, -0.40], [-0.48, -0.40], [-0.48, 0.40] ]"
-    action_type: "stop"
+    type: polygon
+    points: "[ [0.1, 0.1], [0.1, -0.1], [-0.1, -0.1], [-0.1, 0.1] ]"
+    action_type: stop
+    enabled: true
     min_points: 4
-    visualize: True
-    polygon_pub_topic: "polygon_stop"
-    enabled: True
+    polygon_pub_topic: polygon_stop
+    visualize: true
 
-planner_plugins:
-  - GridBased
-planner_plugins_dict:
-  GridBased:
-    plugin: "nav2_navfn_planner/NavfnPlanner"
-    tolerance: 0.5
-    use_astar: false
-    allow_unknown: true
+# ========== Kinematics & geometry ==========
+# From ridgeback.urdf.xacro:
+#   wheel_radius: 0.0759
+#   rocker_width: 0.472
+#   wheel_width:  0.0790
+#   chassis_length: 0.960, chassis_width: 0.793
+wheel_radius: 0.0759
+wheel_separation: 0.551            # rocker_width + wheel_width = 0.472 + 0.079 = 0.551
+wheels_per_side: 2                  # front + rear mecanum wheels per side
+is_holonomic: true                  # Ridgeback is omnidirectional (mecanum)
 
-footprint: "[ [0.48, -0.40], [0.48, 0.40], [-0.48, 0.40], [-0.48, -0.40] ]"
-footprint_padding: 0.1
-inflation_radius: 0.25
+# If your stack uses radius instead of polygon footprint:
+robot_radius: 0.48                  # ~half of length (0.960/2), conservative for inflation
 
-robot_base_frame: 'base_link'
-robot_odom_frame: 'odom'
+robot_base_frame: base_link
+robot_odom_frame: odom
+robot_model: ridgeback
+robot_sensor_frame: lidar           # logical sensor frame name (matches your other robots)
+z_offset: 0.0635                    # keep same vertical offset convention as Boxer/Jackal
 
+# ========== Motion limits ==========
 actions:
-  continuous:
-    angular_range:
-    - -4.0
-    - 4.0
-    linear_range:
-    - -2.0
-    - 2.0
   discrete:
-  - angular: 0.0
-    linear: 0.3
-    name: move_forward
-  - angular: 0.0
-    linear: -0.15
-    name: move_backward
-  - angular: 0.35
-    linear: 0.15
-    name: turn_left
-  - angular: -0.35
-    linear: 0.15
-    name: turn_right
-  - angular: 0.75
-    linear: 0.0
-    name: turn_strong_left
-  - angular: -0.75
-    linear: 0.0
-    name: turn_strong_right
-  - angular: 0.0
-    linear: 0.0
-    name: stop
-is_holonomic: false
+    - { name: move_forward,  linear: 0.3,  angular:  0.0 }
+    - { name: move_backward, linear: -0.15, angular: 0.0 }
+    - { name: turn_left,     linear: 0.15, angular:  0.35 }
+    - { name: turn_right,    linear: 0.15, angular: -0.35 }
+    - { name: rotate_left,   linear: 0.0,  angular:  0.75 }
+    - { name: rotate_right,  linear: 0.0,  angular: -0.75 }
+    - { name: stop,          linear: 0.0,  angular:  0.0  }
+  continuous:
+    angular_range: [-4.0, 4.0]
+    linear_range:  [-2.0, 2.0]
+
+# ========== Laser model (kept consistent with Boxer/Jackal for sim) ==========
 laser:
   angle:
     increment: 0.00654497222
@@ -76,7 +76,3 @@ laser:
   num_beams: 720
   range: 30.0
   update_rate: 10
-robot_base_frame: 'base_link'
-robot_model: ridgeback
-robot_radius: 0.4     # 推荐与 footprint 一致或稍大一点
-robot_sensor_frame: lidar
